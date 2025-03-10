@@ -1,0 +1,28 @@
+#!/bin/sh
+
+EDITOR=${EDITOR:-nvim}
+
+### view: open a mail read-only in an editor
+view() {
+	THREAD="$(notmuch search tag:unread | fzf | cut -d ' ' -f 1)"
+
+	MAILFILE="$(mktemp)"
+	notmuch show --format=mbox "${THREAD}" \
+		> $MAILFILE
+
+	eval "${EDITOR}" \
+		\'+set filetype=mail\' \
+		"${MAILFILE}"
+
+	rm $MAILFILE
+}
+
+### help: displays a help message listing all available commands
+help() {
+	grep "^### " "$0" \
+		| sed 's/^### //' \
+		| sed 's/: /|/' \
+		| column -t -c 80 -s'|'
+}
+
+eval "$*" || help
