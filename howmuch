@@ -2,9 +2,19 @@
 
 EDITOR=${EDITOR:-nvim}
 
-### view: open a mail read-only in an editor
+_select_by_tag() {
+	TAG="$1"
+	eval notmuch search tag:${TAG} | fzf | cut -d ' ' -f 1
+}
+
+### view: select a mail based on tags and display it in the configured editor.
 view() {
-	THREAD="$(notmuch search tag:unread | fzf | cut -d ' ' -f 1)"
+	TAG=${1:-unread}
+	THREAD="$($0 _select_by_tag ${TAG})"
+
+	if [ -z "${THREAD}"]; then
+		exit 1
+	fi
 
 	MAILFILE="$(mktemp)"
 	notmuch show --format=mbox "${THREAD}" \
