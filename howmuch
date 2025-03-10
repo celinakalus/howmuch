@@ -27,6 +27,14 @@ view() {
 	rm $MAILFILE
 }
 
+### alldone: marks all unread messages as read
+alldone() {
+	COUNT="$(notmuch count tag:unread)"
+
+	notmuch tag -unread tag:unread \
+		&& echo "Marked ${COUNT} messages as read."
+}
+
 ### help: displays a help message listing all available commands
 help() {
 	grep "^### " "$0" \
